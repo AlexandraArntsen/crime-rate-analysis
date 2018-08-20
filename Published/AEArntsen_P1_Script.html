@@ -1,0 +1,1308 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>AEArntsen_P1_Script</title><meta name="generator" content="MATLAB 9.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-08-20"><meta name="DC.source" content="AEArntsen_P1_Script.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Data Read from archive</a></li><li><a href="#3">Summary Statistics</a></li><li><a href="#4">Correlation and Feature Exploration</a></li><li><a href="#5">Decission Tree for factor importance</a></li><li><a href="#6">Linear Regression</a></li><li><a href="#7">Non Linear Regression</a></li></ul></div><pre class="codeinput"><span class="comment">%----------------------------------------------------------%</span>
+<span class="comment">%                                                          %</span>
+<span class="comment">%                     .Alexandra E. Arntsen.               %</span>
+<span class="comment">%               .Candidate Exam for Data Scientist.        %</span>
+<span class="comment">%                         .NRG Systems.                    %</span>
+<span class="comment">%                                                          %</span>
+<span class="comment">%                                                          %</span>
+<span class="comment">%   Functions called in this script:                       %</span>
+<span class="comment">%                                                          %</span>
+<span class="comment">%                     []= download_dataset()               %</span>
+<span class="comment">%                     []= Model_Performance()              %</span>
+<span class="comment">%                     []= makeTrainingSet()                %</span>
+<span class="comment">%----------------------------------------------------------%</span>
+
+<span class="comment">% Problem # 1</span>
+<span class="comment">% Exploratory Analysis</span>
+</pre><h2 id="2">Data Read from archive</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Download the housing data text file</span>
+<span class="comment">%-------------------------------------------------</span>
+
+   [housing_data,m,n] = download_dataset();  <span class="comment">% Matrix of all the data</span>
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Data Read from file in the case of server permission</span>
+<span class="comment">% Error</span>
+<span class="comment">%-------------------------------------------------</span>
+
+  <span class="comment">% housing_data = csvread('housing.data.csv');</span>
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Header Import</span>
+<span class="comment">%-------------------------------------------------</span>
+
+     header = {<span class="string">'CRIM'</span>;<span class="string">'ZN'</span>;<span class="string">'INDUS'</span>;<span class="string">'CHAS'</span>;<span class="string">'NOX'</span>;<span class="string">'RM'</span>;<span class="string">'AGE'</span>;<span class="string">'DIS'</span>;<span class="string">'RAD'</span>;<span class="string">'TAX'</span>;<span class="string">'PTRATIO'</span>;<span class="string">'B'</span>;<span class="string">'LSTAT'</span>;<span class="string">'MEDV'</span>};
+     header = char(header);
+
+  <span class="comment">% CRIM    =   per capita crime rate by town</span>
+  <span class="comment">% ZN      =   proportion of residential land zoned for lots over 25,000 sq.ft.</span>
+  <span class="comment">% INDUS   =   proportion of non-retail business acres per town</span>
+  <span class="comment">% CHAS    =   Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)</span>
+  <span class="comment">% NOX     =   nitric oxides concentration (parts per 10 million)</span>
+  <span class="comment">% RM      =   average number of rooms per dwelling</span>
+  <span class="comment">% AGE     =   proportion of owner-occupied units built prior to 1940</span>
+  <span class="comment">% DIS     =   weighted distances to five Boston employment centres</span>
+  <span class="comment">% RAD     =   index of accessibility to radial highways</span>
+  <span class="comment">% TAX     =   full-value property-tax rate per $10,000</span>
+  <span class="comment">% PTRATIO =   pupil-teacher ratio by town</span>
+  <span class="comment">% B       =   1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town</span>
+  <span class="comment">% LSTAT   =   % lower status of the population</span>
+  <span class="comment">% MEDV    =   Median value of owner-occupied homes in $1000's</span>
+</pre><h2 id="3">Summary Statistics</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Computes data summary statistics and plots</span>
+<span class="comment">%-------------------------------------------------</span>
+         mx = max(housing_data)';
+         mi = min(housing_data)';
+         mu = mean(housing_data)';
+      sigma = std(housing_data)';
+          q = quantile(housing_data,[0.25,0.75]);
+ quantile_1 = q(1,:)';
+ quantile_2 = q(2,:)';
+        med = median(housing_data)';
+
+         mx = num2str(mx);
+         mi = num2str(mi);
+         mu = num2str(mu);
+      sigma = num2str(sigma);
+ quantile_1 = num2str(quantile_1);
+ quantile_2 = num2str(quantile_2);
+        med = num2str(med);
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Make Table of summary statistics</span>
+<span class="comment">%-------------------------------------------------</span>
+
+      T = table(header,mx,mi,mu,med,sigma,quantile_1,quantile_2);
+      C = table2cell(T);
+
+   fig1 = figure;
+        t = uitable(fig1, <span class="string">'Position'</span>, [10 10 630 275],<span class="string">'FontSize'</span>,12,<span class="string">'Data'</span>, nan(14,7))
+        t.Data = C;
+        t.ColumnName = {<span class="string">'variable'</span>,<span class="string">'maximum'</span>, <span class="string">'minimum'</span>,<span class="keyword">...</span>
+                        <span class="string">'mean'</span>,<span class="string">'median'</span>,<span class="string">'standard deviation'</span>, <span class="string">'quantile 0.25'</span>,<span class="string">'quantile 0.75'</span>};
+        t.ColumnWidth = {<span class="string">'auto'</span>,<span class="string">'auto'</span>,<span class="string">'auto'</span>, <span class="string">'auto'</span>, <span class="string">'auto'</span>, <span class="string">'auto'</span>, <span class="string">'auto'</span>};
+        t.RowName = [];
+        txt_title = uicontrol(<span class="string">'Style'</span>, <span class="string">'text'</span>, <span class="string">'Position'</span>,<span class="keyword">...</span>
+                              [190 300 250 20], <span class="string">'FontSize'</span>,14,<span class="string">'FontWeight'</span>,<span class="string">'bold'</span>,<span class="keyword">...</span>
+                              <span class="string">'String'</span>, <span class="string">'Summary Statistics'</span>);
+
+      set(fig1,<span class="string">'Position'</span>,[0, 0, 650, 315])
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Box Plot of the Distribution among variables</span>
+<span class="comment">%-------------------------------------------------</span>
+
+  fig2 = figure
+       axes2 = axes(<span class="string">'Parent'</span>,fig2);
+       box(axes2,<span class="string">'on'</span>);
+       set(gcf,<span class="string">'Position'</span>,[10 10 900 600])
+       boxplot(housing_data,<span class="string">'orientation'</span>,<span class="string">'horizontal'</span>,<span class="string">'Widths'</span>,0.3,<span class="string">'Colors'</span>,[0 0.5 0],<span class="string">'Symbol'</span>,<span class="string">'k+'</span>)
+       set(gca,<span class="string">'XScale'</span>,<span class="string">'log'</span>)
+
+       h = findobj(gca,<span class="string">'Tag'</span>,<span class="string">'Box'</span>);
+       <span class="keyword">for</span> j = 1:length(h)
+            patch(get(h(j),<span class="string">'XData'</span>),get(h(j),<span class="string">'YData'</span>),<span class="string">'y'</span>,<span class="string">'FaceColor'</span>,[ 0.0 0.5 0.0],<span class="string">'FaceAlpha'</span>,.75);
+            lines = findobj(gcf, <span class="string">'type'</span>, <span class="string">'line'</span>, <span class="string">'Tag'</span>, <span class="string">'Median'</span>);
+            set(lines, <span class="string">'Color'</span>,[0 0.5 0] );
+            set(findobj(gca,<span class="string">'type'</span>,<span class="string">'line'</span>),<span class="string">'linew'</span>,2)
+        <span class="keyword">end</span>
+       title(<span class="string">'Summary of Attributes'</span>)
+       xticks([0.01 0.02 0.05 0.1 0.2 0.5 1 2.5 5 10 25 50 100 250 500])
+       xticklabels({<span class="string">'0.01'</span>,<span class="string">'0.02'</span>,<span class="string">'0.05'</span>,<span class="string">'0.1'</span>,<span class="string">'0.2'</span>,<span class="string">'0.5'</span>,<span class="string">'1.0'</span>,<span class="string">'2.5'</span>,<span class="string">'5'</span>,<span class="string">'10'</span>,<span class="string">'25'</span>,<span class="string">'50'</span>,<span class="string">'100'</span>,<span class="string">'250'</span>,<span class="string">'500'</span>})
+       set(axes2,<span class="string">'FontSize'</span>,16)
+       yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
+       yticklabels({<span class="string">'CRIM'</span>,<span class="string">'ZN'</span>,<span class="string">'INDUS'</span>,<span class="string">'CHAS'</span>,<span class="string">'NOX'</span>,<span class="string">'RM'</span>,<span class="string">'AGE'</span>,<span class="string">'DIS'</span>,<span class="string">'RAD'</span>,<span class="string">'TAX'</span>,<span class="string">'PTRATIO'</span>,<span class="string">'B'</span>,<span class="string">'LSTAT'</span>,<span class="string">'MEDV'</span>,<span class="string">'500'</span>})
+       set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>)
+       xlabel(<span class="string">'value'</span>)
+
+ <span class="comment">% Standardize the data set (mu = 0 and std.dev = 1)</span>
+ <span class="comment">% And re-plot</span>
+
+       <span class="keyword">for</span> i = 1:14
+           Attribute = housing_data(:,i);
+           Att_mu = mean(Attribute);
+           Att_std = std(Attribute);
+           housing_data_standard(:,i) = (Attribute - Att_mu)./Att_std;
+       <span class="keyword">end</span>
+
+  fig2b = figure
+        axes2b = axes(<span class="string">'Parent'</span>,fig2b);
+        box(axes2b,<span class="string">'on'</span>);
+        set(gcf,<span class="string">'Position'</span>,[10 10 900 600])
+        boxplot(housing_data_standard,<span class="string">'orientation'</span>,<span class="string">'horizontal'</span>,<span class="string">'Widths'</span>,0.3,<span class="string">'Colors'</span>,[0 0.5 0],<span class="string">'Symbol'</span>,<span class="string">'k+'</span>)
+
+       h = findobj(gca,<span class="string">'Tag'</span>,<span class="string">'Box'</span>);
+       <span class="keyword">for</span> j=1:length(h)
+            patch(get(h(j),<span class="string">'XData'</span>),get(h(j),<span class="string">'YData'</span>),<span class="string">'y'</span>,<span class="string">'FaceColor'</span>,[ 0.0 0.5 0.0],<span class="string">'FaceAlpha'</span>,.75);
+            lines = findobj(gcf, <span class="string">'type'</span>, <span class="string">'line'</span>, <span class="string">'Tag'</span>, <span class="string">'Median'</span>);
+            set(lines, <span class="string">'Color'</span>,[0 0.5 0] );
+            set(findobj(gca,<span class="string">'type'</span>,<span class="string">'line'</span>),<span class="string">'linew'</span>,2)
+        <span class="keyword">end</span>
+       title(<span class="string">'Summary of Attributes Standardized'</span>)
+       set(axes2b,<span class="string">'FontSize'</span>,16)
+       yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
+       yticklabels({<span class="string">'CRIM'</span>,<span class="string">'ZN'</span>,<span class="string">'INDUS'</span>,<span class="string">'CHAS'</span>,<span class="string">'NOX'</span>,<span class="string">'RM'</span>,<span class="string">'AGE'</span>,<span class="string">'DIS'</span>,<span class="string">'RAD'</span>,<span class="string">'TAX'</span>,<span class="string">'PTRATIO'</span>,<span class="string">'B'</span>,<span class="string">'LSTAT'</span>,<span class="string">'MEDV'</span>,<span class="string">'500'</span>})
+       set(gca,<span class="string">'YDir'</span>,<span class="string">'reverse'</span>)
+       xlabel(<span class="string">'value'</span>)
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Histogram and Scatter Plot of crime rate</span>
+<span class="comment">%-------------------------------------------------</span>
+ <span class="comment">% Get counts and bin centers for 28 bins</span>
+       nbins = 28;
+       [counts binCenters] = hist(housing_data(:,1), nbins); <span class="comment">% 1 to look at first attribute (CRIM)</span>
+
+       x = [1:1:m]';
+       M = horzcat(x,housing_data(:,1));
+       [f,xi] = ksdensity(housing_data(:,1));
+
+   fig3 = figure
+      axes3 = axes(<span class="string">'Parent'</span>,fig3);
+      bar(binCenters, counts,<span class="string">'FaceColor'</span>,[0.93 0.69 0.13],<span class="string">'EdgeColor'</span>,[0.85 0.33 0.10],<span class="string">'LineWidth'</span>,1.5);
+      xlabel(<span class="string">'per capita crime rate'</span>)
+      ylabel(<span class="string">'count'</span>)
+      set(axes3,<span class="string">'FontSize'</span>,16)
+
+     counts_n = counts./m;  <span class="comment">% normalize counts to get percent of the entire dataset</span>
+
+  fig4 = figure
+     axes4 = axes(<span class="string">'Parent'</span>,fig4);
+     bar(binCenters, counts_n,<span class="string">'FaceColor'</span>,[0.93 0.69 0.13],<span class="string">'EdgeColor'</span>,[0.85 0.33 0.10],<span class="string">'LineWidth'</span>,1.5);
+     xlabel(<span class="string">'per capita crime rate'</span>)
+     ylabel(<span class="string">'probability'</span>)
+     set(axes4,<span class="string">'FontSize'</span>,16)
+
+
+ <span class="comment">% Plot the crime rate data by instance and sorted</span>
+     sorted = housing_data(:,1);
+     sorted = sort(sorted);
+
+  fig5= figure
+     axes5 = axes(<span class="string">'Parent'</span>,fig5)
+     xi = 1:1:506;
+     s1 = subplot(1,2,1)
+     plot(xi,housing_data(:,1),<span class="string">'r-o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+     ylabel(<span class="string">'per capita crime rate'</span>)
+     xlabel(<span class="string">'location'</span>)
+     set(s1,<span class="string">'FontSize'</span>,16)
+     s2 = subplot(1,2,2)
+     plot(xi,sorted,<span class="string">'r-o'</span>,<span class="string">'MarkerFaceColor'</span>,<span class="string">'r'</span>);
+     xlabel(<span class="string">'location'</span>)
+     set(s2,<span class="string">'FontSize'</span>,16)
+</pre><pre class="codeoutput">
+t = 
+
+  Table with properties:
+
+                Data: [14&times;7 double]
+         ColumnWidth: 'auto'
+      ColumnEditable: []
+    CellEditCallback: ''
+            Position: [10 10 630 275]
+               Units: 'pixels'
+
+  Use GET to show all properties
+
+
+fig2 = 
+
+  Figure (2) with properties:
+
+      Number: 2
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [440 378 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+Warning: Negative limits ignored 
+
+fig2b = 
+
+  Figure (3) with properties:
+
+      Number: 3
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [440 378 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+
+fig3 = 
+
+  Figure (4) with properties:
+
+      Number: 4
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [440 378 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+
+fig4 = 
+
+  Figure (5) with properties:
+
+      Number: 5
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [440 378 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+
+fig5 = 
+
+  Figure (6) with properties:
+
+      Number: 6
+        Name: ''
+       Color: [0.9400 0.9400 0.9400]
+    Position: [440 378 560 420]
+       Units: 'pixels'
+
+  Use GET to show all properties
+
+
+axes5 = 
+
+  Axes with properties:
+
+             XLim: [0 1]
+             YLim: [0 1]
+           XScale: 'linear'
+           YScale: 'linear'
+    GridLineStyle: '-'
+         Position: [0.1300 0.1100 0.7750 0.8150]
+            Units: 'normalized'
+
+  Use GET to show all properties
+
+
+s1 = 
+
+  Axes with properties:
+
+             XLim: [0 1]
+             YLim: [0 1]
+           XScale: 'linear'
+           YScale: 'linear'
+    GridLineStyle: '-'
+         Position: [0.1300 0.1100 0.3347 0.8150]
+            Units: 'normalized'
+
+  Use GET to show all properties
+
+
+s2 = 
+
+  Axes with properties:
+
+             XLim: [0 1]
+             YLim: [0 1]
+           XScale: 'linear'
+           YScale: 'linear'
+    GridLineStyle: '-'
+         Position: [0.5703 0.1100 0.3347 0.8150]
+            Units: 'normalized'
+
+  Use GET to show all properties
+
+</pre><img vspace="5" hspace="5" src="AEArntsen_P1_Script_01.png" style="width:650px;height:315px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_02.png" style="width:900px;height:600px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_03.png" style="width:900px;height:600px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_04.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_05.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_06.png" style="width:560px;height:420px;" alt=""> <h2 id="4">Correlation and Feature Exploration</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Examine how variables are related</span>
+<span class="comment">%-------------------------------------------------</span>
+
+<span class="comment">% Manually coded pearson correlation</span>
+<span class="comment">% plot with R-squared values</span>
+
+<span class="comment">%  rsquared = nan(n,n);</span>
+<span class="comment">%  variables = 1:14;</span>
+
+<span class="comment">%  for i = 1:n</span>
+<span class="comment">%      for j = 1:n</span>
+<span class="comment">%          var1 = variables(i);</span>
+<span class="comment">%          var2 = variables(j);</span>
+<span class="comment">%          ft = fittype('poly1');</span>
+<span class="comment">%          opts = fitoptions('Method', 'LinearLeastSquares');</span>
+<span class="comment">%          [fitresult,gof] = fit(housing_data(:,var1),housing_data(:,var2),ft,opts);</span>
+<span class="comment">%          rsquared(i,j) = gof.rsquare;</span>
+<span class="comment">%          clear var1 var2</span>
+<span class="comment">%      end</span>
+<span class="comment">%  end</span>
+
+<span class="comment">%  figure     % manual correlation image</span>
+<span class="comment">%  imagesc(rsquared)</span>
+<span class="comment">%  colorbar</span>
+
+<span class="comment">%  figure     % correlations represented by circles</span>
+<span class="comment">%  correlationCircles(housing_data,'varNames',{'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV'})</span>
+<span class="comment">%  cmap = redblue(256);</span>
+<span class="comment">%  colormap(cmap)</span>
+<span class="comment">%  colorbar</span>
+
+
+<span class="comment">% correlation matrix with labels</span>
+  ccoef = corrcoef(housing_data); <span class="comment">% get coefficients</span>
+
+  cmap = colormap(redblue);       <span class="comment">% new colormap</span>
+  cmap_new = nan(65,3);
+  cmap_new(1:64,:) = cmap;
+  cmap_new(65,:) = [1 1 1];       <span class="comment">% add white to end</span>
+
+  ccoef_diag = ccoef;
+
+  rows = 1:1:14;
+
+<span class="comment">% only use half of the matrix (both sides of diagonal are the same)</span>
+  <span class="keyword">for</span> i = 1: 14
+      ind = find(rows &lt;=i);
+      ccoef_diag(i,ind) = 1;
+      clear <span class="string">ind</span>
+  <span class="keyword">end</span>
+
+  im= imagesc(ccoef_diag)
+  colormap(cmap_new)
+
+  <span class="comment">% text</span>
+  textStrings = num2str(ccoef(:), <span class="string">'%0.2f'</span>);       <span class="comment">% Create strings from the matrix values</span>
+  textStrings = strtrim(cellstr(textStrings));  <span class="comment">% Remove any space padding</span>
+  textStrings = reshape(textStrings,14,[]);
+  [x, y] = meshgrid(1:14);  <span class="comment">% Create x and y coordinates for the strings</span>
+
+  <span class="keyword">for</span> i = 1:14
+      j = find(rows&gt;=i);
+           string = textStrings(i,j);
+         hStrings = text(x(i,j),y(i,j),string,<span class="string">'HorizontalAlignment'</span>,<span class="string">'center'</span>,<span class="string">'FontSize'</span>,16);
+  <span class="keyword">end</span>
+
+  xticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14])
+  xticklabels({<span class="string">'CRIM'</span>,<span class="string">'ZN'</span>,<span class="string">'INDUS'</span>,<span class="string">'CHAS'</span>,<span class="string">'NOX'</span>,<span class="string">'RM'</span>,<span class="string">'AGE'</span>,<span class="string">'DIS'</span>,<span class="string">'RAD'</span>,<span class="string">'TAX'</span>,<span class="string">'PTRATIO'</span>,<span class="string">'B'</span>,<span class="string">'LSTAT'</span>,<span class="string">'MEDV'</span>})
+  xtickangle(45)
+  yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14])
+  yticklabels({<span class="string">'CRIM'</span>,<span class="string">'ZN'</span>,<span class="string">'INDUS'</span>,<span class="string">'CHAS'</span>,<span class="string">'NOX'</span>,<span class="string">'RM'</span>,<span class="string">'AGE'</span>,<span class="string">'DIS'</span>,<span class="string">'RAD'</span>,<span class="string">'TAX'</span>,<span class="string">'PTRATIO'</span>,<span class="string">'B'</span>,<span class="string">'LSTAT'</span>,<span class="string">'MEDV'</span>})
+  xt = get(gca, <span class="string">'XTick'</span>);
+  set(gca, <span class="string">'FontSize'</span>, 16)
+  yt = get(gca,<span class="string">'YTick'</span>);
+  set(gca,<span class="string">'FontSize'</span>,16)
+
+<span class="comment">%-------------------------------------------------</span>
+<span class="comment">% Plot correlations of variables against CRIM (crime rate)</span>
+<span class="comment">%-------------------------------------------------</span>
+
+   clear <span class="string">x</span>; x = 1:m;
+   R2s = nan(1,n-1);
+   yvars = {<span class="string">'CRIM'</span>;<span class="string">'ZN'</span>;<span class="string">'INDUS'</span>;<span class="string">'CHAS'</span>;<span class="string">'NOX'</span>;<span class="string">'RM'</span>;<span class="string">'AGE'</span>;<span class="string">'DIS'</span>;<span class="string">'RAD'</span>;<span class="string">'TAX'</span>;<span class="string">'PTRATIO'</span>;<span class="string">'B'</span>;<span class="string">'LSTAT'</span>;<span class="string">'MEDV'</span>};
+
+  figure
+     set(gca,<span class="string">'FontSize'</span>,16)
+     <span class="keyword">for</span> i = 2:n
+         subplot(3,5,i)
+         scatter(housing_data(:,1),housing_data(:,i))
+           ft = fittype( <span class="string">'poly1'</span> );
+         opts = fitoptions( <span class="string">'Method'</span>, <span class="string">'LinearLeastSquares'</span> );
+         [fitresult, gof] = fit(housing_data(:,1),housing_data(:,i), ft,opts);
+         R2s(i) = gof.rsquare;
+         hold <span class="string">on</span>
+         points = fitresult.p1 .* x + fitresult.p2;
+         plot(x,points,<span class="string">'LineWidth'</span>,1.5)
+         ylim([min(housing_data(:,i)),max(housing_data(:,i))])
+         xlim([min(housing_data(:,1)),max(housing_data(:,1))])
+         ylabel(yvars(i,:),<span class="string">'FontSize'</span>,20)
+         clear <span class="string">points</span> <span class="string">fitresult</span> <span class="string">gof</span>
+     <span class="keyword">end</span>
+</pre><pre class="codeoutput">
+im = 
+
+  Image with properties:
+
+           CData: [14&times;14 double]
+    CDataMapping: 'scaled'
+
+  Use GET to show all properties
+
+</pre><img vspace="5" hspace="5" src="AEArntsen_P1_Script_07.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_08.png" style="width:560px;height:420px;" alt=""> <h2 id="5">Decission Tree for factor importance</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+<span class="comment">% implement a Bosted decision tree regression to find</span>
+<span class="comment">% attributes that best predict crime rate</span>
+<span class="comment">%-------------------------------------------------</span>
+  Target = housing_data_standard(:,1);
+  inputNames = {<span class="string">'ZN'</span>,<span class="string">'INDUS'</span>,<span class="string">'CHAS'</span>,<span class="string">'NOX'</span>,<span class="string">'RM'</span>,<span class="string">'AGE'</span>,<span class="string">'DIS'</span>,<span class="string">'RAD'</span>,<span class="string">'TAX'</span>,<span class="string">'PTRATIO'</span>,<span class="string">'B'</span>,<span class="string">'LSTAT'</span>,<span class="string">'MEDV'</span>};
+  outputNames = {<span class="string">'CRIM'</span>};
+
+<span class="comment">% Use all available predictors. Data Standardized.</span>
+
+    Predictors = housing_data_standard(:,2:14);
+    [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10); <span class="comment">% 90:10 train:test split</span>
+
+    <span class="comment">% Fit Model</span>
+    t = templateTree(<span class="string">'MinLeaf'</span>,5);      <span class="comment">% 1 for binary learners, 5 for regression</span>
+    mdl = fitensemble(Xtrain(:,:),Ytrain(:,:),<span class="string">'LSBoost'</span>,500,t,<span class="keyword">...</span>
+   <span class="string">'PredictorNames'</span>,inputNames,<span class="string">'ResponseName'</span>,outputNames{1},<span class="string">'LearnRate'</span>,0.01);
+
+     ypred_train= predict(mdl,Xtrain(:,:));
+   ypred_test = predict(mdl,Xtest(:,:));
+
+    <span class="comment">% Evaluate performance</span>
+    <span class="comment">% True vs. Predict plots</span>
+    disp(<span class="string">'Boosted Decision Tree'</span>)
+    [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+
+
+    <span class="comment">% determine which variables are most important</span>
+    [predictorImportance,sortedIndex] = sort(mdl.predictorImportance);
+    figure;
+    barh(predictorImportance)
+    set(gca,<span class="string">'ytickLabel'</span>,inputNames(sortedIndex))
+    xlabel(<span class="string">'Predictor Importance'</span>)
+
+<span class="comment">%-------------------------------------------------</span>
+</pre><pre class="codeoutput">Boosted Decision Tree
+R2 training: 0.958460
+
+R2 test: 0.683488
+
+</pre><img vspace="5" hspace="5" src="AEArntsen_P1_Script_09.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_10.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_11.png" style="width:560px;height:420px;" alt=""> <h2 id="6">Linear Regression</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+
+[housing_data,m,n] = download_dataset();  <span class="comment">% Matrix of all the data</span>
+
+<span class="comment">% 1) first, linear regression with all attributes, 90/10 partition</span>
+
+     clear <span class="string">Predictors</span> <span class="string">mdl</span> <span class="string">Ytrain</span> <span class="string">Xtrain</span> <span class="string">Ytest</span> <span class="string">Xtest</span> <span class="string">R2_train</span> <span class="string">R2_test</span> <span class="string">ypred_train</span> <span class="string">ypred_test</span>
+     Target = housing_data(:,1);
+     Predictors = housing_data(:,2:14);
+
+     <span class="comment">% get training set</span>
+      [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10);
+     <span class="comment">% fit model</span>
+      mdl = fitlm(Xtrain,Ytrain);
+     <span class="comment">% predict response</span>
+      ypred_test = predict(mdl,Xtest);
+      ypred_train = predict(mdl,Xtrain);
+
+     <span class="comment">% Evaluate performance</span>
+     <span class="comment">% True vs. Predict plots</span>
+       disp(<span class="string">'Linear Model'</span>)
+       [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+
+
+<span class="comment">% 2) Test different partitions</span>
+        clear <span class="string">Predictors</span> <span class="string">mdl</span> <span class="string">Ytrain</span> <span class="string">Xtrain</span> <span class="string">Ytest</span> <span class="string">Xtest</span> <span class="string">R2_train</span> <span class="string">R2_test</span> <span class="string">ypred_train</span> <span class="string">ypred_test</span>
+
+         split_values = [0.40 0.35 0.30 0.25 0.20 0.15 0.10 0.05];
+             R2_train = nan(3,length(split_values));
+              R2_test = nan(3,length(split_values));
+
+         <span class="comment">% different Predictors</span>
+             P = [1 2 3];
+             <span class="comment">% All predictors: ID = 1</span>
+             <span class="comment">% Important predictors: ID = 2</span>
+             <span class="comment">% top 3 predictors: ID = 3</span>
+
+         <span class="keyword">for</span> j = 1: 3
+             pick = P(j);
+             <span class="keyword">if</span> pick == 1
+                 Predictors = housing_data(:,2:14);
+             <span class="keyword">elseif</span> pick == 2
+                 Predictors = horzcat(housing_data(:,14),housing_data(:,9),housing_data(:,8));
+             <span class="keyword">elseif</span> pick == 3
+                 Predictors = horzcat(housing_data(:,5:9),housing_data(:,12:end));
+             <span class="keyword">end</span>
+
+                 <span class="keyword">for</span> i = 1: length(split_values)
+                     s = split_values(i);
+                     [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,s);
+                     mdl = fitlm(Xtrain,Ytrain);
+                     ypred_test = predict(mdl,Xtest);
+                     ypred_train = predict(mdl,Xtrain);
+
+                     ft = fittype( <span class="string">'poly1'</span> );
+                     opts = fitoptions( <span class="string">'Method'</span>, <span class="string">'LinearLeastSquares'</span> );
+                     [fitresult, gof] = fit(Ytrain,ypred_train, ft,opts);
+                     R2_train(j,i) = gof.rsquare;
+                     clear <span class="string">fitresult</span> <span class="string">gof</span>
+
+                    [fitresult, gof] = fit(Ytest,ypred_test, ft,opts);
+                    R2_test(j,i) = gof.rsquare;
+
+                    clear <span class="string">Ytrain</span> <span class="string">Xtrain</span> <span class="string">mdlypred_train</span> <span class="string">ypred_test</span>
+                 <span class="keyword">end</span>
+           <span class="keyword">end</span>
+
+
+   figure
+   plot(split_values,R2_test(1,:),<span class="string">'m-.'</span>,<span class="string">'LineWidth'</span>,2)
+   hold <span class="string">on</span>
+   plot(split_values,R2_train(1,:),<span class="string">'m'</span>,<span class="string">'LineWidth'</span>,2)
+   hold <span class="string">on</span>
+   plot(split_values,R2_test(2,:),<span class="string">'g-.'</span>,<span class="string">'LineWidth'</span>,2)
+   hold <span class="string">on</span>
+   plot(split_values,R2_train(2,:),<span class="string">'g'</span>,<span class="string">'LineWidth'</span>,2)
+   hold <span class="string">on</span>
+   plot(split_values,R2_test(3,:),<span class="string">'b-.'</span>,<span class="string">'LineWidth'</span>,2)
+   hold <span class="string">on</span>
+   plot(split_values,R2_train(3,:),<span class="string">'b'</span>,<span class="string">'LineWidth'</span>,2)
+   set(gca, <span class="string">'FontSize'</span>, 16)
+   xlabel(<span class="string">'partition'</span>)
+   ylabel(<span class="string">'accuracy'</span>)
+
+<span class="comment">%-------------------------------------------------</span>
+</pre><pre class="codeoutput">Linear Model
+R2 training: 0.439321
+
+R2 test: 0.746912
+
+</pre><img vspace="5" hspace="5" src="AEArntsen_P1_Script_12.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_13.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_14.png" style="width:560px;height:420px;" alt=""> <h2 id="7">Non Linear Regression</h2><pre class="codeinput"><span class="comment">%-------------------------------------------------</span>
+
+[housing_data,m,n] = download_dataset();  <span class="comment">% Matrix of all the data</span>
+
+ clear <span class="string">Predictors</span> <span class="string">mdl</span>  <span class="string">Ytrain</span> <span class="string">Xtrain</span> <span class="string">Ytest</span> <span class="string">Xtest</span> <span class="string">R2_train</span> <span class="string">R2_test</span> <span class="string">RMSE_train</span> <span class="string">RMSE_test</span> <span class="string">ypred_train</span> <span class="string">ypred_test</span> <span class="string">btrees</span>
+
+ Target = housing_data(:,1);
+ Predictors = housing_data(:,2:14);
+
+ <span class="comment">% first just do a normal representation of a log model regression</span>
+   [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10);
+
+  [m n] = size(Xtrain);
+  b=zeros(n-1,1); alpha=10^-6; err=10^-5;
+
+  clear <span class="string">x</span> <span class="string">y</span>
+  x = Xtrain;
+  y = Ytrain;
+
+<span class="comment">% Use GRADIENT DESCENT method to find new Beta COEFFICIENTS</span>
+
+   flag = 1;
+  count = 1;
+  b_old = b;
+
+  <span class="keyword">while</span> flag
+    <span class="keyword">for</span> i = 1:m
+
+        pred = 1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*x(i,4)+b(5)*x(i,5)+<span class="keyword">...</span>
+                        b(6)*x(i,6)+b(7)*x(i,7)+b(8)*x(i,8)+b(9)*x(i,9)+b(10)*<span class="keyword">...</span>
+                        x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+<span class="comment">%      pred=1/(1+exp(-(b(1)+b(2)*x(i,2))));</span>
+
+        <span class="keyword">for</span> j = 1:length(b)
+            b(j) = b(j)+alpha*(y(i)-pred)*pred*(1-pred)*x(i,j);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    difference(count)=abs(norm(b_old,2)-norm(b,2));
+
+  <span class="keyword">if</span> difference(count)&lt;err
+     flag=0;
+  <span class="keyword">else</span>
+     b_old=b;
+     count=count+1;
+  <span class="keyword">end</span>
+  <span class="keyword">end</span>
+
+<span class="comment">% plot convergence error of gradient decent</span>
+
+   figure
+   semilogy(1:count,difference,<span class="string">'b'</span>),grid <span class="string">on</span>
+   xlabel(<span class="string">'ITERATIONS'</span>)
+   ylabel(<span class="string">'ERROR'</span>)
+   title(<span class="string">'ERROR VS ITERATIONS'</span>)
+
+<span class="comment">% Calculate PREDICTIONS ON TRAINING SET USING COEFFICIENTS FOUND</span>
+
+  <span class="keyword">for</span> i = 1:length(x)
+      ypred_train(i)=1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*<span class="keyword">...</span>
+                                x(i,4)+b(5)*x(i,5)+b(6)*x(i,6)+b(7)*x(i,7)+<span class="keyword">...</span>
+                                b(8)*x(i,8)+b(9)*x(i,9)+b(10)*x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+<span class="comment">%     ypred_train(i)=1/(1+exp(-(b(1)+b(2)*x(i,2))));</span>
+  <span class="keyword">end</span>
+
+
+<span class="comment">% Calculate PREDICTIONS ON TEST SET USING COEFFICIENTS FOUND</span>
+  clear <span class="string">result</span> <span class="string">pred_x</span> <span class="string">x</span> <span class="string">y</span>
+  [m,n]=size(Xtest);
+  x = Xtest;
+  y = Ytest;
+
+  <span class="keyword">for</span> i=1:length(x)
+      ypred_test(i)=1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*<span class="keyword">...</span>
+                               x(i,4)+b(5)*x(i,5)+b(6)*x(i,6)+b(7)*x(i,7)+b(8)*<span class="keyword">...</span>
+                               x(i,8)+b(9)*x(i,9)+b(10)*x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+<span class="comment">%     ypred_test(i)=1/(1+exp(-(b(1)+b(2))*x(i,2)));</span>
+  <span class="keyword">end</span>
+
+
+<span class="comment">% Evaluate performance</span>
+<span class="comment">% True vs. Predict plots</span>
+
+ypred_train=ypred_train';
+ypred_test = ypred_test';
+mdl = [];                  <span class="comment">% model object is empty because I manually wrote/optimized the equation</span>
+
+
+       disp(<span class="string">'Non linear model'</span>)
+       [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+
+
+
+ <span class="comment">% destandardize</span>
+<span class="comment">% crime_mu = mean(housing_data(:,1));</span>
+<span class="comment">%  crime_std = std(housing_data(:,1));</span>
+<span class="comment">%  ypred_train_ds = (ypred_train.* crime_std) + crime_mu;</span>
+<span class="comment">%  ytrain_ds = (Ytrain.* crime_std) + crime_mu;</span>
+<span class="comment">%  ypred_test_ds = (ypred_test.* crime_std) + crime_mu;</span>
+<span class="comment">%  ytest_ds = (Ytest.* crime_std) + crime_mu;</span>
+<span class="comment">%  xtrain_ds = (Xtrain.*crime_std)+crime_mu;</span>
+ <span class="comment">% destandardize - if not using std. variables</span>
+
+<span class="comment">% ypred_train_ds = ypred_train;</span>
+<span class="comment">%  ytrain_ds = Ytrain;</span>
+<span class="comment">%  ypred_test_ds = ypred_test;</span>
+<span class="comment">%  ytest_ds = Ytest;</span>
+<span class="comment">%  xtrain_ds = Xtrain;</span>
+
+<span class="comment">%  ypred_test_ds=ypred_test_ds';</span>
+<span class="comment">%  ypred_train_ds=ypred_train_ds';</span>
+</pre><pre class="codeoutput">Non linear model
+R2 training: 0.205687
+
+R2 test: 0.504163
+
+</pre><img vspace="5" hspace="5" src="AEArntsen_P1_Script_15.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_16.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="AEArntsen_P1_Script_17.png" style="width:560px;height:420px;" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2017a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+%                                                          %
+%                     .Alexandra E. Arntsen.               %
+%               .Candidate Exam for Data Scientist.        %
+%                         .NRG Systems.                    %
+%                                                          %
+%                                                          %
+%   Functions called in this script:                       %
+%                                                          %
+%                     []= download_dataset()               %
+%                     []= Model_Performance()              %
+%                     []= makeTrainingSet()                %
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH%
+
+% Problem # 1 
+% Exploratory Analysis
+
+
+%% Data Read from archive
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Download the housing data text file
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+   [housing_data,m,n] = download_dataset();  % Matrix of all the data       
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Data Read from file in the case of server permission
+% Error
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-  
+ 
+  % housing_data = csvread('housing.data.csv');
+ 
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Header Import 
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+     header = {'CRIM';'ZN';'INDUS';'CHAS';'NOX';'RM';'AGE';'DIS';'RAD';'TAX';'PTRATIO';'B';'LSTAT';'MEDV'};
+     header = char(header);
+  
+  % CRIM    =   per capita crime rate by town
+  % ZN      =   proportion of residential land zoned for lots over 25,000 sq.ft. 
+  % INDUS   =   proportion of non-retail business acres per town
+  % CHAS    =   Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+  % NOX     =   nitric oxides concentration (parts per 10 million)
+  % RM      =   average number of rooms per dwelling
+  % AGE     =   proportion of owner-occupied units built prior to 1940
+  % DIS     =   weighted distances to five Boston employment centres
+  % RAD     =   index of accessibility to radial highways
+  % TAX     =   full-value property-tax rate per $10,000
+  % PTRATIO =   pupil-teacher ratio by town
+  % B       =   1000(Bk - 0.63)^2 where Bk is the proportion of blacks by town
+  % LSTAT   =   % lower status of the population
+  % MEDV    =   Median value of owner-occupied homes in $1000's
+
+
+%%  Summary Statistics
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Computes data summary statistics and plots
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+         mx = max(housing_data)';
+         mi = min(housing_data)';
+         mu = mean(housing_data)'; 
+      sigma = std(housing_data)'; 
+          q = quantile(housing_data,[0.25,0.75]);
+ quantile_1 = q(1,:)';
+ quantile_2 = q(2,:)';
+        med = median(housing_data)';
+      
+         mx = num2str(mx);
+         mi = num2str(mi);
+         mu = num2str(mu);
+      sigma = num2str(sigma);
+ quantile_1 = num2str(quantile_1);
+ quantile_2 = num2str(quantile_2); 
+        med = num2str(med); 
+      
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-  
+% Make Table of summary statistics 
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+      
+      T = table(header,mx,mi,mu,med,sigma,quantile_1,quantile_2); 
+      C = table2cell(T);
+     
+   fig1 = figure;
+        t = uitable(fig1, 'Position', [10 10 630 275],'FontSize',12,'Data', nan(14,7))
+        t.Data = C;
+        t.ColumnName = {'variable','maximum', 'minimum',...
+                        'mean','median','standard deviation', 'quantile 0.25','quantile 0.75'};
+        t.ColumnWidth = {'auto','auto','auto', 'auto', 'auto', 'auto', 'auto'};
+        t.RowName = [];
+        txt_title = uicontrol('Style', 'text', 'Position',...
+                              [190 300 250 20], 'FontSize',14,'FontWeight','bold',...
+                              'String', 'Summary Statistics');
+      
+      set(fig1,'Position',[0, 0, 650, 315]) 
+      
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- 
+% Box Plot of the Distribution among variables
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+  
+  fig2 = figure
+       axes2 = axes('Parent',fig2);
+       box(axes2,'on');
+       set(gcf,'Position',[10 10 900 600])
+       boxplot(housing_data,'orientation','horizontal','Widths',0.3,'Colors',[0 0.5 0],'Symbol','k+')
+       set(gca,'XScale','log')
+ 
+       h = findobj(gca,'Tag','Box');
+       for j = 1:length(h)
+            patch(get(h(j),'XData'),get(h(j),'YData'),'y','FaceColor',[ 0.0 0.5 0.0],'FaceAlpha',.75);
+            lines = findobj(gcf, 'type', 'line', 'Tag', 'Median');
+            set(lines, 'Color',[0 0.5 0] );
+            set(findobj(gca,'type','line'),'linew',2)
+        end
+       title('Summary of Attributes')
+       xticks([0.01 0.02 0.05 0.1 0.2 0.5 1 2.5 5 10 25 50 100 250 500])
+       xticklabels({'0.01','0.02','0.05','0.1','0.2','0.5','1.0','2.5','5','10','25','50','100','250','500'})
+       set(axes2,'FontSize',16)
+       yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
+       yticklabels({'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV','500'})
+       set(gca,'YDir','reverse')
+       xlabel('value')
+ 
+ % Standardize the data set (mu = 0 and std.dev = 1)
+ % And re-plot      
+ 
+       for i = 1:14
+           Attribute = housing_data(:,i); 
+           Att_mu = mean(Attribute); 
+           Att_std = std(Attribute); 
+           housing_data_standard(:,i) = (Attribute - Att_mu)./Att_std; 
+       end
+ 
+  fig2b = figure
+        axes2b = axes('Parent',fig2b);
+        box(axes2b,'on');
+        set(gcf,'Position',[10 10 900 600])
+        boxplot(housing_data_standard,'orientation','horizontal','Widths',0.3,'Colors',[0 0.5 0],'Symbol','k+')
+        
+       h = findobj(gca,'Tag','Box');
+       for j=1:length(h)
+            patch(get(h(j),'XData'),get(h(j),'YData'),'y','FaceColor',[ 0.0 0.5 0.0],'FaceAlpha',.75);
+            lines = findobj(gcf, 'type', 'line', 'Tag', 'Median');
+            set(lines, 'Color',[0 0.5 0] );
+            set(findobj(gca,'type','line'),'linew',2)
+        end
+       title('Summary of Attributes Standardized')
+       set(axes2b,'FontSize',16)
+       yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14 15])
+       yticklabels({'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV','500'})
+       set(gca,'YDir','reverse')
+       xlabel('value')
+  
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Histogram and Scatter Plot of crime rate
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+ % Get counts and bin centers for 28 bins
+       nbins = 28;
+       [counts binCenters] = hist(housing_data(:,1), nbins); % 1 to look at first attribute (CRIM)
+    
+       x = [1:1:m]';
+       M = horzcat(x,housing_data(:,1)); 
+       [f,xi] = ksdensity(housing_data(:,1));  
+ 
+   fig3 = figure
+      axes3 = axes('Parent',fig3); 
+      bar(binCenters, counts,'FaceColor',[0.93 0.69 0.13],'EdgeColor',[0.85 0.33 0.10],'LineWidth',1.5); 
+      xlabel('per capita crime rate')
+      ylabel('count')
+      set(axes3,'FontSize',16)
+ 
+     counts_n = counts./m;  % normalize counts to get percent of the entire dataset
+ 
+  fig4 = figure
+     axes4 = axes('Parent',fig4); 
+     bar(binCenters, counts_n,'FaceColor',[0.93 0.69 0.13],'EdgeColor',[0.85 0.33 0.10],'LineWidth',1.5); 
+     xlabel('per capita crime rate')
+     ylabel('probability')
+     set(axes4,'FontSize',16)
+ 
+ 
+ % Plot the crime rate data by instance and sorted
+     sorted = housing_data(:,1);
+     sorted = sort(sorted);
+ 
+  fig5= figure
+     axes5 = axes('Parent',fig5)
+     xi = 1:1:506;
+     s1 = subplot(1,2,1)
+     plot(xi,housing_data(:,1),'r-o','MarkerFaceColor','r');
+     ylabel('per capita crime rate')
+     xlabel('location')
+     set(s1,'FontSize',16)
+     s2 = subplot(1,2,2)
+     plot(xi,sorted,'r-o','MarkerFaceColor','r');
+     xlabel('location')
+     set(s2,'FontSize',16)
+
+
+%% Correlation and Feature Exploration 
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Examine how variables are related
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH- 
+
+% Manually coded pearson correlation 
+% plot with R-squared values 
+
+%  rsquared = nan(n,n);
+%  variables = 1:14;
+  
+%  for i = 1:n
+%      for j = 1:n
+%          var1 = variables(i);
+%          var2 = variables(j); 
+%          ft = fittype('poly1'); 
+%          opts = fitoptions('Method', 'LinearLeastSquares');
+%          [fitresult,gof] = fit(housing_data(:,var1),housing_data(:,var2),ft,opts);
+%          rsquared(i,j) = gof.rsquare;
+%          clear var1 var2
+%      end 
+%  end
+  
+%  figure     % manual correlation image
+%  imagesc(rsquared)
+%  colorbar
+  
+%  figure     % correlations represented by circles
+%  correlationCircles(housing_data,'varNames',{'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV'})
+%  cmap = redblue(256);
+%  colormap(cmap)
+%  colorbar
+
+
+% correlation matrix with labels
+  ccoef = corrcoef(housing_data); % get coefficients
+ 
+  cmap = colormap(redblue);       % new colormap
+  cmap_new = nan(65,3); 
+  cmap_new(1:64,:) = cmap;
+  cmap_new(65,:) = [1 1 1];       % add white to end
+ 
+  ccoef_diag = ccoef; 
+  
+  rows = 1:1:14;
+
+% only use half of the matrix (both sides of diagonal are the same)  
+  for i = 1: 14
+      ind = find(rows <=i); 
+      ccoef_diag(i,ind) = 1;
+      clear ind
+  end
+  
+  im= imagesc(ccoef_diag)
+  colormap(cmap_new)
+  
+  % text
+  textStrings = num2str(ccoef(:), '%0.2f');       % Create strings from the matrix values
+  textStrings = strtrim(cellstr(textStrings));  % Remove any space padding
+  textStrings = reshape(textStrings,14,[]);
+  [x, y] = meshgrid(1:14);  % Create x and y coordinates for the strings
+  
+  for i = 1:14    
+      j = find(rows>=i);
+           string = textStrings(i,j);
+         hStrings = text(x(i,j),y(i,j),string,'HorizontalAlignment','center','FontSize',16);
+  end
+  
+  xticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14])
+  xticklabels({'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV'})
+  xtickangle(45)
+  yticks([1 2 3 4 5 6 7 8 9 10 11 12 13 14])
+  yticklabels({'CRIM','ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV'})
+  xt = get(gca, 'XTick');
+  set(gca, 'FontSize', 16)
+  yt = get(gca,'YTick'); 
+  set(gca,'FontSize',16)
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% Plot correlations of variables against CRIM (crime rate) 
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+   clear x; x = 1:m;
+   R2s = nan(1,n-1);
+   yvars = {'CRIM';'ZN';'INDUS';'CHAS';'NOX';'RM';'AGE';'DIS';'RAD';'TAX';'PTRATIO';'B';'LSTAT';'MEDV'};
+
+  figure
+     set(gca,'FontSize',16)
+     for i = 2:n
+         subplot(3,5,i)
+         scatter(housing_data(:,1),housing_data(:,i))
+           ft = fittype( 'poly1' );
+         opts = fitoptions( 'Method', 'LinearLeastSquares' );
+         [fitresult, gof] = fit(housing_data(:,1),housing_data(:,i), ft,opts);
+         R2s(i) = gof.rsquare;
+         hold on 
+         points = fitresult.p1 .* x + fitresult.p2;
+         plot(x,points,'LineWidth',1.5)
+         ylim([min(housing_data(:,i)),max(housing_data(:,i))])
+         xlim([min(housing_data(:,1)),max(housing_data(:,1))])
+         ylabel(yvars(i,:),'FontSize',20)
+         clear points fitresult gof
+     end
+  
+     
+%% Decission Tree for factor importance
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+% implement a Bosted decision tree regression to find 
+% attributes that best predict crime rate
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+  Target = housing_data_standard(:,1);
+  inputNames = {'ZN','INDUS','CHAS','NOX','RM','AGE','DIS','RAD','TAX','PTRATIO','B','LSTAT','MEDV'};
+  outputNames = {'CRIM'};
+  
+% Use all available predictors. Data Standardized.
+
+    Predictors = housing_data_standard(:,2:14); 
+    [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10); % 90:10 train:test split
+    
+    % Fit Model
+    t = templateTree('MinLeaf',5);      % 1 for binary learners, 5 for regression
+    mdl = fitensemble(Xtrain(:,:),Ytrain(:,:),'LSBoost',500,t,...
+   'PredictorNames',inputNames,'ResponseName',outputNames{1},'LearnRate',0.01);
+    
+     ypred_train= predict(mdl,Xtrain(:,:)); 
+   ypred_test = predict(mdl,Xtest(:,:)); 
+    
+    % Evaluate performance
+    % True vs. Predict plots
+    disp('Boosted Decision Tree')
+    [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+    
+    
+    % determine which variables are most important
+    [predictorImportance,sortedIndex] = sort(mdl.predictorImportance);
+    figure;
+    barh(predictorImportance)
+    set(gca,'ytickLabel',inputNames(sortedIndex))
+    xlabel('Predictor Importance')
+
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% Linear Regression
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+[housing_data,m,n] = download_dataset();  % Matrix of all the data 
+
+% 1) first, linear regression with all attributes, 90/10 partition
+ 
+     clear Predictors mdl Ytrain Xtrain Ytest Xtest R2_train R2_test ypred_train ypred_test
+     Target = housing_data(:,1); 
+     Predictors = housing_data(:,2:14);
+     
+     % get training set
+      [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10);
+     % fit model  
+      mdl = fitlm(Xtrain,Ytrain);
+     % predict response  
+      ypred_test = predict(mdl,Xtest);
+      ypred_train = predict(mdl,Xtrain); 
+     
+     % Evaluate performance
+     % True vs. Predict plots
+       disp('Linear Model')      
+       [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+    
+       
+% 2) Test different partitions
+        clear Predictors mdl Ytrain Xtrain Ytest Xtest R2_train R2_test ypred_train ypred_test
+        
+         split_values = [0.40 0.35 0.30 0.25 0.20 0.15 0.10 0.05];
+             R2_train = nan(3,length(split_values));
+              R2_test = nan(3,length(split_values));
+         
+         % different Predictors
+             P = [1 2 3];
+             % All predictors: ID = 1
+             % Important predictors: ID = 2
+             % top 3 predictors: ID = 3
+             
+         for j = 1: 3
+             pick = P(j);
+             if pick == 1
+                 Predictors = housing_data(:,2:14);
+             elseif pick == 2
+                 Predictors = horzcat(housing_data(:,14),housing_data(:,9),housing_data(:,8)); 
+             elseif pick == 3
+                 Predictors = horzcat(housing_data(:,5:9),housing_data(:,12:end));  
+             end
+             
+                 for i = 1: length(split_values)
+                     s = split_values(i);
+                     [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,s);
+                     mdl = fitlm(Xtrain,Ytrain);
+                     ypred_test = predict(mdl,Xtest);
+                     ypred_train = predict(mdl,Xtrain); 
+
+                     ft = fittype( 'poly1' );
+                     opts = fitoptions( 'Method', 'LinearLeastSquares' );
+                     [fitresult, gof] = fit(Ytrain,ypred_train, ft,opts);
+                     R2_train(j,i) = gof.rsquare;
+                     clear fitresult gof
+  
+                    [fitresult, gof] = fit(Ytest,ypred_test, ft,opts);
+                    R2_test(j,i) = gof.rsquare;
+   
+                    clear Ytrain Xtrain mdlypred_train ypred_test 
+                 end
+           end
+                
+   
+   figure
+   plot(split_values,R2_test(1,:),'m-.','LineWidth',2)
+   hold on
+   plot(split_values,R2_train(1,:),'m','LineWidth',2)
+   hold on 
+   plot(split_values,R2_test(2,:),'g-.','LineWidth',2)
+   hold on
+   plot(split_values,R2_train(2,:),'g','LineWidth',2)
+   hold on
+   plot(split_values,R2_test(3,:),'b-.','LineWidth',2)
+   hold on
+   plot(split_values,R2_train(3,:),'b','LineWidth',2)
+   set(gca, 'FontSize', 16) 
+   xlabel('partition')
+   ylabel('accuracy')
+       
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+%% Non Linear Regression
+%REPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASHREPLACE_WITH_DASH_DASH-
+
+[housing_data,m,n] = download_dataset();  % Matrix of all the data 
+  
+ clear Predictors mdl  Ytrain Xtrain Ytest Xtest R2_train R2_test RMSE_train RMSE_test ypred_train ypred_test btrees
+
+ Target = housing_data(:,1); 
+ Predictors = housing_data(:,2:14); 
+ 
+ % first just do a normal representation of a log model regression
+   [Ytrain Xtrain Ytest Xtest] = makeTrainingSet(Target,Predictors,0.10);
+ 
+  [m n] = size(Xtrain);
+  b=zeros(n-1,1); alpha=10^-6; err=10^-5;
+ 
+  clear x y
+  x = Xtrain;
+  y = Ytrain; 
+
+% Use GRADIENT DESCENT method to find new Beta COEFFICIENTS
+
+   flag = 1;
+  count = 1;
+  b_old = b;
+
+  while flag
+    for i = 1:m
+        
+        pred = 1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*x(i,4)+b(5)*x(i,5)+...
+                        b(6)*x(i,6)+b(7)*x(i,7)+b(8)*x(i,8)+b(9)*x(i,9)+b(10)*...
+                        x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+%      pred=1/(1+exp(-(b(1)+b(2)*x(i,2))));
+        
+        for j = 1:length(b)
+            b(j) = b(j)+alpha*(y(i)-pred)*pred*(1-pred)*x(i,j);
+        end
+    end
+    
+    difference(count)=abs(norm(b_old,2)-norm(b,2));
+    
+  if difference(count)<err
+     flag=0;
+  else
+     b_old=b;
+     count=count+1;
+  end
+  end
+
+% plot convergence error of gradient decent 
+  
+   figure
+   semilogy(1:count,difference,'b'),grid on
+   xlabel('ITERATIONS')
+   ylabel('ERROR')
+   title('ERROR VS ITERATIONS')
+
+% Calculate PREDICTIONS ON TRAINING SET USING COEFFICIENTS FOUND
+
+  for i = 1:length(x)
+      ypred_train(i)=1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*...
+                                x(i,4)+b(5)*x(i,5)+b(6)*x(i,6)+b(7)*x(i,7)+...
+                                b(8)*x(i,8)+b(9)*x(i,9)+b(10)*x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+%     ypred_train(i)=1/(1+exp(-(b(1)+b(2)*x(i,2))));
+  end
+
+
+% Calculate PREDICTIONS ON TEST SET USING COEFFICIENTS FOUND
+  clear result pred_x x y
+  [m,n]=size(Xtest);
+  x = Xtest;
+  y = Ytest; 
+ 
+  for i=1:length(x)
+      ypred_test(i)=1/(1+exp(-(b(1)+b(2)*x(i,2)+b(3)*x(i,3)+b(4)*...
+                               x(i,4)+b(5)*x(i,5)+b(6)*x(i,6)+b(7)*x(i,7)+b(8)*...
+                               x(i,8)+b(9)*x(i,9)+b(10)*x(i,10)+b(11)*x(i,11)+b(12)*x(i,12))));
+
+%     ypred_test(i)=1/(1+exp(-(b(1)+b(2))*x(i,2)));
+  end
+
+
+% Evaluate performance
+% True vs. Predict plots
+  
+ypred_train=ypred_train';
+ypred_test = ypred_test';
+mdl = [];                  % model object is empty because I manually wrote/optimized the equation
+
+
+       disp('Non linear model')
+       [R2_test,R2_train] = Model_Performance(mdl,ypred_train,Ytrain,ypred_test,Ytest,Xtrain,Xtest);
+  
+
+
+ % destandardize
+% crime_mu = mean(housing_data(:,1)); 
+%  crime_std = std(housing_data(:,1)); 
+%  ypred_train_ds = (ypred_train.* crime_std) + crime_mu;
+%  ytrain_ds = (Ytrain.* crime_std) + crime_mu;
+%  ypred_test_ds = (ypred_test.* crime_std) + crime_mu;
+%  ytest_ds = (Ytest.* crime_std) + crime_mu;
+%  xtrain_ds = (Xtrain.*crime_std)+crime_mu;
+ % destandardize - if not using std. variables
+ 
+% ypred_train_ds = ypred_train;
+%  ytrain_ds = Ytrain;
+%  ypred_test_ds = ypred_test;
+%  ytest_ds = Ytest;
+%  xtrain_ds = Xtrain;       
+        
+%  ypred_test_ds=ypred_test_ds'; 
+%  ypred_train_ds=ypred_train_ds'; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##### SOURCE END #####
+--></body></html>
